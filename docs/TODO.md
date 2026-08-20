@@ -20,16 +20,32 @@
 - [x] 37 tests, 93% coverage, ruff-clean.
 - [x] Updated this file, PLAN.md, PRD.md, PRD_mcp_infra.md, README.md.
 
-## Next (Stage 3 — Blind strategy)
-- [ ] `strategy/base.py` — `BrainBase` contract (`decide_move`).
-- [ ] `strategy/heuristic_brain.py` — Manhattan distance + Bayesian belief over the opponent's
-      last-known/inferred position (default, zero LLM tokens).
-- [ ] `strategy/thief_brain.py` — thief-specific subclass (evasion + deceptive-hint tactics).
-- [ ] `strategy/resolve_brain.py` — factory reading `[strategy]` from `config/game.toml`.
-- [ ] Replace `PeerRuntime._decide_move`'s hardcoded STAY with the resolved brain's output.
-- [ ] Real synchronized turn-taking (negotiation handshake) to replace the ad-hoc two-script
-      smoke test from stage 2.
-- [ ] Update this file, PLAN.md, PRD.md again once stage 3 is committed.
+## Done (Stage 3 — Blind strategy)
+- [x] `domain/belief.py` — `BeliefState`, exact position tracker from honestly-relayed moves.
+- [x] `strategy/base.py` — `BrainBase` contract (`decide_move`).
+- [x] `strategy/heuristic_brain.py` — Manhattan-distance search over `domain.rules.legal_moves`
+      (default, zero LLM tokens).
+- [x] `strategy/thief_brain.py` — evasion subclass (`_sign=-1`).
+- [x] `strategy/resolve_brain.py` — factory reading `[strategy]` from `config/game.toml`;
+      `game.toml`'s `[strategy]` section is now uncommented and live.
+- [x] Replaced `PeerRuntime._decide_move`'s hardcoded STAY with the resolved brain's output.
+- [x] Manual test: ran this repo + the police repo concurrently — real strategy confirmed
+      driving outbound moves on both sides (see `docs/PRD_strategy.md`).
+- [x] 46 tests, 94% coverage, ruff-clean.
+- [x] Updated this file, PLAN.md, PRD.md, PRD_strategy.md, README.md.
+
+## Next (Stage 4 — Language + scent)
+- [ ] `domain/pheromones.py` (smell) — scent field: τij(t+1)=max(0,(1-ρ)τij(t)+Δτij), using
+      `config/game.json`'s `pheromones` block.
+- [ ] `llm/provider_base.py` + `llm/template_provider.py` (default, 0 tokens) — trash-talk text
+      generation only; the move is still never chosen by the LLM.
+- [ ] Extend the wire message shape (currently just `direction`+`turn`) to carry a free-text
+      hint capped at `hint_max_words` — deceptive hints become a legitimate thief tactic once
+      the audit/crypto layer in stage 6 exists to make a caught lie costly; honestly relayed
+      until then.
+- [ ] Update `BeliefState`'s deterministic tracking to fold in scent-field signal alongside the
+      exact move-replay it already does.
+- [ ] Update this file, PLAN.md, PRD.md again once stage 4 is committed.
 
 ## Open flags (not blocking, must resolve before a real submission-counted match)
 - [ ] **`num_games`** — confirm against the book text whether the mandated per-series value
@@ -38,11 +54,19 @@
 - [ ] Replace `agreed_between: ["bb-ai-12", "<opponent-team-code>"]` with the real opponent
       code once a match is negotiated (both repos, kept byte-identical).
 - [ ] Replace `[game].members` placeholder student IDs in `config/game.toml`.
-- [ ] Decide `thief_class` in `[strategy]` once stage 3's `ThiefBrain` exists (currently
-      commented out — default heuristic runs unset).
+- [ ] **Synchronized turn-taking / negotiation handshake** — `mcp/server.py`'s inbound
+      `receive_move` still always echoes STAY (unchanged since stage 2); only this peer's
+      outbound moves use the real brain. Making the inbound side reply with a real move needs
+      a proper `peer/turn_handler.py` + `peer/handshake.py` + `domain/negotiation.py` protocol,
+      deliberately not improvised in stage 3 — see `docs/PRD_strategy.md`'s design-decision
+      note. Build alongside stage 5/6's cloud + security work, re-checking the book's
+      negotiation-protocol text first.
+- [ ] **Barrier-aware routing** — `ThiefBrain` only ever chooses a movement direction against
+      the empty `BarrierSet` this peer starts with; it doesn't yet reason about the police's
+      actual barrier placements, and the wire protocol doesn't carry them. Add once the
+      message schema is extended (likely alongside the stage above).
 
 ## Later stages (tracked here for visibility, detailed in their own PRD_*.md once started)
-- [ ] Stage 3 — Blind strategy (heuristic brain: Manhattan distance + Bayesian belief).
 - [ ] Stage 4 — Language + scent (pheromone math, free-text hints, template LLM banter,
       including deceptive hints as a legitimate thief tactic).
 - [ ] Stage 5 — Cloud exposure + tunneling (ngrok/Localtonet).

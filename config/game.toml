@@ -12,9 +12,8 @@ my_port = 8801
 opponent_url = "http://127.0.0.1:8802/mcp"
 turn_timeout_seconds = 180
 
-# [strategy]
-# thief_class = "bb_ai_12_thief.strategy.thief_brain:ThiefBrain"
-# police_class = ""
+[strategy]
+thief_class = "bb_ai_12_thief.strategy.thief_brain:ThiefBrain"
 
 [trash_talk]
 provider = "template"

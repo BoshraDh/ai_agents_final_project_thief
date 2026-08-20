@@ -11,8 +11,12 @@ from __future__ import annotations
 import argparse
 import sys
 
+from bb_ai_12_thief.domain.barriers import BarrierSet
+from bb_ai_12_thief.domain.belief import BeliefState
+from bb_ai_12_thief.domain.board import Board
 from bb_ai_12_thief.runtime.peer_runtime import PeerRuntime
 from bb_ai_12_thief.shared.config_manager import ConfigManager
+from bb_ai_12_thief.strategy.resolve_brain import resolve_brain
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -36,9 +40,20 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _run_peer(repo_root: str, turns: int) -> int:
-    private = ConfigManager(repo_root).load_private()
+    cfg = ConfigManager(repo_root)
+    shared = cfg.load_shared()
+    private = cfg.load_private()
     net = private["network"]
-    runtime = PeerRuntime(host="127.0.0.1", port=net["my_port"], opponent_url=net["opponent_url"])
+
+    runtime = PeerRuntime(
+        host="127.0.0.1",
+        port=net["my_port"],
+        opponent_url=net["opponent_url"],
+        board=Board.from_config(shared),
+        barriers=BarrierSet.from_config(shared),
+        belief=BeliefState.from_config(shared, "thief_start", "cop_start"),
+        brain=resolve_brain(private),
+    )
     runtime.start_server()
     runtime.run_turn_loop(turns)
     return 0
