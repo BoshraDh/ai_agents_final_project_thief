@@ -223,7 +223,7 @@ re-read the relevant chapters directly instead of leaving these as open guesses:
       40` and `bb-ai-12-thief peer --turns 40` now exit with code 0 and zero errors in either
       log — both sides independently printed `GAME OVER: survived — scores {'police': 5,
       'thief': 10}` at turn 35. No stray processes left on ports 8801/8802 afterward.
-- [x] 127 tests, 92% coverage, ruff-clean (no test file changes needed — this is a thin,
+- [x] 127 tests, 93% coverage, ruff-clean (no test file changes needed — this is a thin,
       CLI-layer timing fix with no new branching logic to unit test beyond what coverage
       already exercises indirectly).
 - [x] Not a mathematically airtight fix (a sufeciently slow opponent could still in theory miss

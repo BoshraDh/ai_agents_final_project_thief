@@ -260,7 +260,7 @@ for that round, instead of failing immediately if it hasn't yet. Re-ran the exac
 two-process verification that surfaced the bug: 40-turn run, real bidirectional exchange every
 round from turn 1 through turn 35 (previously died on round 1 both attempts), clean automatic
 `GAME OVER: survived` detection on the police side, no stray processes left on the ports
-afterward. 127 tests, 92% coverage, ruff-clean. That same run's thief-side exit hit a separate,
+afterward. 127 tests, 93% coverage, ruff-clean. That same run's thief-side exit hit a separate,
 already-documented, lower-severity "benign teardown race" — also fixed the same day, see
 immediately below.
 

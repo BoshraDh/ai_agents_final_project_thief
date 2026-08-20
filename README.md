@@ -34,7 +34,7 @@ No known blockers remain for a real live match at this point.
 
 ```bash
 uv sync
-uv run pytest -q --cov=src --cov-report=term-missing   # 127 tests, 92% coverage
+uv run pytest -q --cov=src --cov-report=term-missing   # 127 tests, 93% coverage
 uv run ruff check .                                      # zero violations
 uv run bb-ai-12-thief check-config                        # sanity-check config loading
 uv run bb-ai-12-thief declare                             # print a sealed Step-0 declaration
