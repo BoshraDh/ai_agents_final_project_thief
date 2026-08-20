@@ -14,6 +14,8 @@ import sys
 from bb_ai_12_thief.domain.barriers import BarrierSet
 from bb_ai_12_thief.domain.belief import BeliefState
 from bb_ai_12_thief.domain.board import Board
+from bb_ai_12_thief.domain.pheromones import PheromoneField
+from bb_ai_12_thief.llm.resolve_provider import resolve_provider
 from bb_ai_12_thief.runtime.peer_runtime import PeerRuntime
 from bb_ai_12_thief.shared.config_manager import ConfigManager
 from bb_ai_12_thief.strategy.resolve_brain import resolve_brain
@@ -53,6 +55,8 @@ def _run_peer(repo_root: str, turns: int) -> int:
         barriers=BarrierSet.from_config(shared),
         belief=BeliefState.from_config(shared, "thief_start", "cop_start"),
         brain=resolve_brain(private),
+        trash_talk=resolve_provider(private, shared),
+        opponent_scent=PheromoneField.from_config(shared),
     )
     runtime.start_server()
     runtime.run_turn_loop(turns)
