@@ -10,5 +10,5 @@ def test_check_config_runs_cleanly(capsys):
     out = capsys.readouterr().out
     assert exit_code == 0
     assert "grid_size=7" in out
-    assert "my_port=8801" in out
+    assert "my_port=8802" in out
     assert "sha256=" in out
