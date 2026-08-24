@@ -9,12 +9,13 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
+from pathlib import Path
 
 from bb_ai_12_thief.crypto.step0 import Step0Declaration
 from bb_ai_12_thief.domain.barriers import BarrierSet
 from bb_ai_12_thief.domain.board import Board
 from bb_ai_12_thief.domain.pheromones import PheromoneField
-from bb_ai_12_thief.domain.protocol import Role
+from bb_ai_12_thief.domain.protocol import GameOutcome, Role
 from bb_ai_12_thief.league.client import LeagueTransport
 from bb_ai_12_thief.league.inbox import LeagueInbox
 from bb_ai_12_thief.league.runtime import LeagueRuntime
@@ -22,6 +23,7 @@ from bb_ai_12_thief.league.server_tools import add_league_tools
 from bb_ai_12_thief.llm.resolve_provider import resolve_provider
 from bb_ai_12_thief.mcp.server import build_server, run_server
 from bb_ai_12_thief.peer.turn_handler import TurnHandler
+from bb_ai_12_thief.report.emit import emit_report
 from bb_ai_12_thief.shared.config_manager import ConfigManager
 from bb_ai_12_thief.strategy.resolve_brain import resolve_brain
 
@@ -63,6 +65,20 @@ def run(repo_root: str, turns: int, opponent_url: str | None, sub_game: int | No
         step0=Step0Declaration.create(group_id),
     )
     asyncio.run(_play(runtime, turns, sub_game_number))
+    if runtime.outcome is not GameOutcome.ONGOING:
+        emit_report(
+            logs_dir=Path(repo_root) / "logs",
+            group_id=group_id,
+            sub_game_number=sub_game_number,
+            outcome=runtime.outcome,
+            role=Role.THIEF,
+            commit_log=runtime.commit_log,
+            step0=runtime.step0,
+            shared_config=shared,
+            game_json_sha256=cfg.game_json_sha256(),
+            recipient=private["email"]["recipient"],
+            token_path=Path(repo_root) / "token.json",
+        )
     return 0
 
 
