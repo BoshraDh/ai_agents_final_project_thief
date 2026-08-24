@@ -9,7 +9,7 @@ repos = { cop = "https://github.com/BoshraDh/ai_agents_final_project_police", th
 
 [network]
 my_port = 8802
-opponent_url = "https://e6d6-147-236-163-154.ngrok-free.app/mcp"
+opponent_url = "https://success-regular-annex-icons.trycloudflare.com/mcp"
 turn_timeout_seconds = 180
 
 [strategy]
