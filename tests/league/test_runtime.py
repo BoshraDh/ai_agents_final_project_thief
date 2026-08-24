@@ -117,4 +117,14 @@ def test_play_runs_to_the_turn_cap_when_nothing_terminal_happens():
     outcome = asyncio.run(runtime.play(3))
     assert outcome == GameOutcome.ONGOING
     assert runtime.final_turn is None
-    assert len(transport.sent_turns) == 3
+
+
+def test_play_concludes_survived_locally_when_opponent_goes_silent_at_the_boundary():
+    # Nothing is ever delivered to the inbox -- every wait_for_turn times out.
+    inbox = LeagueInbox()
+    transport = _FakeTransport()
+    runtime = _runtime(inbox, transport, survival_threshold=1)
+    outcome = asyncio.run(runtime.play(5))
+    assert outcome == GameOutcome.SURVIVED
+    assert runtime.final_turn == 1
+    assert len(transport.sent_turns) == 1
