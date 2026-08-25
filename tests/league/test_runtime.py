@@ -105,7 +105,7 @@ def test_play_stops_early_once_survival_threshold_is_reached():
     outcome = asyncio.run(runtime.play(10))
     assert outcome == GameOutcome.SURVIVED
     assert runtime.final_turn == 2
-    assert transport.audits[0]["result_claim"] == "survival"
+    assert transport.audits[0]["result_claim"] == {"type": "survival"}
 
 
 def test_play_runs_to_the_turn_cap_when_nothing_terminal_happens():
