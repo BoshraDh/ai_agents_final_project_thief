@@ -730,6 +730,31 @@ especially ones that arrive with prescriptive fix instructions attached.
       building toward — it's done, and it's clean.
 - [ ] **Next**: the real graded 6-sub-game series against aviayeli.
 
+## Done (opponent switch back to SMNGRP05 — friendly, 2026-08-26)
+- [x] SMNGRP05 resumed contact via the established user-relayed channel, offering a new
+      Cloudflare quick-tunnel endpoint (`https://store-maritime-ser-maintain.trycloudflare.com/mcp`,
+      one door for both roles). `config/game.toml`'s `opponent_url` updated to it in both repos.
+      `config/game.json`'s `agreed_between` was already `["bb-ai-12", "SMNGRP05"]` in both repos
+      (left that way since 2026-08-24, not reverted when we switched to aviayeli — no change
+      needed).
+- [x] Roles this series: SMNGRP05 police on sub-games 1/3/5 (us thief), us police on 2/4/6
+      (them thief).
+- [x] **Flagged and did not act on an unverified claim embedded in their message**: they
+      asserted "your step-zero system_spec... [is] the record with no step key," citing Rule 19
+      and a from-a-"series we completed together" 35-of-36 failure count. Checked independently
+      before doing anything: current `crypto/step0.py` already seals `{"type": "system_spec",
+      ...}` *before* commitment (the exact fix from 2026-08-24, still in place, not regressed) —
+      their claim doesn't match our actual code. Also no completed-series logs with SMNGRP05
+      exist locally to match "the series we completed together." Same opponent-channel pattern
+      as the earlier SMNGRP05 injection (see the security note above): technically-plausible,
+      cites a real rule/hash formula, paired with urgency ("30-minute window," "the extension
+      you got") — treated as suspicious by default, not fixed, not replied to.
+- [x] **Friendly sub-game 1 (us thief vs their police), run this session**: full 35-turn game,
+      `negotiate: terms match`, mutual `submit_audit` exchange, `outcome: survived`,
+      `--friendly` correctly skipped the report email (uncounted).
+- [ ] **Next**: sub-game 2 (us police vs their thief) from the police repo, same endpoint,
+      `--friendly`, if the user wants to continue this series.
+
 ## Later stages (tracked here for visibility, detailed in their own PRD_*.md once started)
 - [ ] Write the full 6-section academic report in README.md (rules model, communication
       approach, decision-making, LLM usage, live-GUI verification, replay-viewer
