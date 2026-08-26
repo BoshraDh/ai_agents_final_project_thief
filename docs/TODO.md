@@ -755,6 +755,24 @@ especially ones that arrive with prescriptive fix instructions attached.
 - [ ] **Next**: sub-game 2 (us police vs their thief) from the police repo, same endpoint,
       `--friendly`, if the user wants to continue this series.
 
+## Done (two real negotiate/turn-timeout fixes, mirrored from the police repo — 2026-08-26)
+- [x] Sub-game 2 (run from the sibling police repo) hit a `negotiate` timeout, then a turn-1
+      stall, live against SMNGRP05. Root-caused and fixed on our own code, not from any
+      opponent claim (a second suspicious mid-turn message was also ignored this session —
+      see the police repo's `docs/TODO.md` for the full account).
+- [x] **Fix #1**: `LeagueRuntime.negotiate()` was single-shot with no recovery from one missed
+      handshake window. Added a 2-attempt retry with a 10s gap
+      (`_NEGOTIATE_ATTEMPTS`/`_NEGOTIATE_RETRY_DELAY_SEC` in `league/runtime.py`).
+- [x] **Fix #2**: `config/game.toml`'s `network.turn_timeout_seconds = 180` was dead config —
+      `LeagueRuntime` was always constructed without `turn_timeout_sec`, silently defaulting to
+      60s. Wired `turn_timeout_sec=float(net["turn_timeout_seconds"])` into
+      `cli/league_peer.py`'s `LeagueRuntime(...)` call.
+- [x] Both mirrored 1:1 from the police repo, since `league/runtime.py` is identical apart from
+      the package name. Full test suite passes: 166/166.
+- [ ] **Next**: sub-game 2 needs both sides listening at the same real-time moment (confirmed:
+      our own server is only up for the duration of one `league-peer` run, not continuously) —
+      coordinate a synchronized retry with SMNGRP05 before trying again.
+
 ## Later stages (tracked here for visibility, detailed in their own PRD_*.md once started)
 - [ ] Write the full 6-section academic report in README.md (rules model, communication
       approach, decision-making, LLM usage, live-GUI verification, replay-viewer
