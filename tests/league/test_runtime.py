@@ -12,7 +12,7 @@ from bb_ai_12_thief.domain.board import Board
 from bb_ai_12_thief.domain.pheromones import PheromoneField
 from bb_ai_12_thief.domain.protocol import GameOutcome, Position, Role
 from bb_ai_12_thief.league.inbox import LeagueInbox
-from bb_ai_12_thief.league.runtime import LeagueRuntime
+from bb_ai_12_thief.league.runtime import _CLOSING_TURN_TIMEOUT_SEC, LeagueRuntime
 from bb_ai_12_thief.league.terms import terms_signature, to_wire_terms
 from bb_ai_12_thief.llm.template_provider import TemplateProvider
 from bb_ai_12_thief.strategy.thief_brain import ThiefBrain
@@ -128,3 +128,29 @@ def test_play_concludes_survived_locally_when_opponent_goes_silent_at_the_bounda
     assert outcome == GameOutcome.SURVIVED
     assert runtime.final_turn == 1
     assert len(transport.sent_turns) == 1
+
+
+def test_closing_turn_does_not_burn_the_full_turn_timeout(monkeypatch):
+    """Regression test for a stall found live 2026-08-26 vs SMNGRP05.
+
+    Once we have claimed the win the opponent has no further turn to send us,
+    so the normal turn timeout was pure dead wait -- and it ran down *after*
+    they had already opened their own 90s audit window. With turn_timeout_sec
+    at 180 our submit_audit landed ~90s too late and they recorded it as never
+    having arrived, even though their server had accepted it.
+    """
+    inbox = LeagueInbox()
+    transport = _FakeTransport()
+    runtime = _runtime(inbox, transport, survival_threshold=1)
+    runtime.turn_timeout_sec = 999.0
+    seen: list[float] = []
+
+    def _spy(self, step, timeout_sec, *args, **kwargs):
+        seen.append(timeout_sec)
+        raise TimeoutError(f"turn {step}")
+
+    monkeypatch.setattr(LeagueInbox, "wait_for_turn", _spy)
+    outcome = asyncio.run(runtime.play(35))
+
+    assert outcome == GameOutcome.SURVIVED
+    assert seen == [_CLOSING_TURN_TIMEOUT_SEC]
